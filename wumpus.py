@@ -212,7 +212,7 @@ while True:
             print("Breeze")
        
     if Gold.location == Player.location:
-        print("Gold Found. Press T to take the gold")
+        print("Emas ditemukan. Tekan T untuk mengambil emas")
     raw_command = input("\n> ")
     command_list = raw_command.split(' ')
     command = command_list[0].upper()
@@ -239,23 +239,23 @@ while True:
     elif command == 'MOVE' or command == 'M':
         if Player.move(move):
             if Player.location == Wumpus.location:
-                print("... OOPS! BUMPED A WUMPUS!")
+                print("BUMPED A WUMPUS!")
         else:
-            print("\n **You can't get there from here")
+            print("\n **Di lokasi ini kamu gabisa kesana")
             continue
 
     elif command == 'SHOOT' or command == 'S':
         if Player.validate_move(move):
             print("\n-Twang-") 
             if Wumpus.location == move:
-                print("\n Good Shooting!! You hit the Wumpus. \n Wumpi will have their revenge.\n")
+                print("\n Ok! Kamu telah menembak wumpus. \n Hati-hati.\n")
                 sys.exit()
         else:
-            print("\n** Stop trying to shoot through walls.")
+            print("\n** Berhenti mencoba menembus dinding.")
 
         Arrows -= 1
         if Arrows == 0:
-            print("\n You are out of arrows\n Better luck next time\n")
+            print("\n Anda kehabisan arrows\n Semoga lain waktu beruntung\n")
             sys.exit()
     
     else:
