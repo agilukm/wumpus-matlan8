@@ -1,11 +1,3 @@
-#Hunt the Wumpus
-#From a vintage BASIC game program
-#by CREATIVE COMPUTING MORRISTOWN, NEW JERSEY
-#Rewritten in Python by Gordon Reeder
-# Python 3.4
-# ** To do **
-# - Make connections within cave random. So that no two caves are the same.
-
 import random
 import sys
 
@@ -42,25 +34,7 @@ class Room:
         self.description = ""
         for key, value in kwargs.items():
             setattr(self, key, value)
-    def __str__(self):
-        return str(self.number)
 
-    def remove_connect(self, arg_connect):
-        if arg_connect in self.connects_to:
-            self.connects_to.remove(arg_connects)
-
-    def add_connect(self, arg_connect):
-        if arg_connect not in self.connects_to:
-            self.connects_to.append(arg_connect)
-
-    def is_valid_connect(self, arg_connect):
-        return arg_connect in self.connects_to
-
-    def get_number_of_connects(self):
-        return len(self.connects_to)
-
-    def get_connects(self):
-        return self.connects_to
 
     def describe(self):
         if len(self.description) > 0:
@@ -89,13 +63,6 @@ class Thing:
     def validate_move(self, a_new_location):
         return a_new_location.number in self.location.connects_to or a_new_location == self.location
                 
-    def get_location(self):
-        return self.location.number
-
-    def wakeup(self, a_cave):
-        if random.randint(0, 3): # P=.75 that we will move.
-            self.location = a_cave[random.choice(self.location.connects_to) -1]
- 
     def is_hit(self, a_room):
         return self.location == a_room
 
@@ -137,63 +104,72 @@ def create_cave():
         Cave.append(Room(number = number +1))
 
     # Then stich them together.
-    for idx, room in enumerate(Cave):
-        #connect to room to the right
-        if idx != 0:
-            if idx != 4:
-                if idx != 8:
-                 if idx != 12:
-                    room.add_connect(Cave[idx -1].number)
-        if idx == 15:
-            room.add_connect(Cave[11].number)
-        elif idx == 3:
-            ''
-        elif idx == 7:
-            ''
-        elif idx == 11:
-            ''
-        else:    
-            room.add_connect(Cave[idx +1].number) 
+    for indeks, room in enumerate(Cave):
 
-        #connect to room up or down
-        if idx == 0:
-            room.add_connect(5)
-        if idx == 1:
-            room.add_connect(6)
-        if idx == 2:
-            room.add_connect(7)
-        if idx == 3:
-            room.add_connect(8)
-        if idx == 4:
-            room.add_connect(1)
-            room.add_connect(9)
-        if idx == 5:
+        if indeks == 0:
             room.add_connect(2)
-            room.add_connect(10)
-        if idx == 6:
-            room.add_connect(3)
-            room.add_connect(11)
-        if idx == 7:
-            room.add_connect(4)
-            room.add_connect(12)
-        if idx == 8:
             room.add_connect(5)
-            room.add_connect(13)
-        if idx == 9:
+        if indeks == 1:
+            room.add_connect(1)
+            room.add_connect(3)
             room.add_connect(6)
-            room.add_connect(14)
-        if idx == 10:
+        if indeks == 2:
+            room.add_connect(2)
+            room.add_connect(4)
             room.add_connect(7)
-            room.add_connect(15)
-        if idx == 11:
+        if indeks == 3:
+            room.add_connect(3)
             room.add_connect(8)
-            room.add_connect(16)
-        if idx == 12:
+        if indeks == 4:
+            room.add_connect(1)
+            room.add_connect(6)
             room.add_connect(9)
-        if idx == 13:
+        if indeks == 5:
+            room.add_connect(2)
+            room.add_connect(5)
+            room.add_connect(7)
             room.add_connect(10)
-        if idx == 14:
+        if indeks == 6:
+            room.add_connect(3)
+            room.add_connect(6)
+            room.add_connect(8)
             room.add_connect(11)
+        if indeks == 7:
+            room.add_connect(4)
+            room.add_connect(7)
+            room.add_connect(12)
+        if indeks == 8:
+            room.add_connect(5)
+            room.add_connect(10)
+            room.add_connect(13)
+        if indeks == 9:
+            room.add_connect(6)
+            room.add_connect(9)
+            room.add_connect(11)
+            room.add_connect(14)
+        if indeks == 10:
+            room.add_connect(7)
+            room.add_connect(10)
+            room.add_connect(12)
+            room.add_connect(15)
+        if indeks == 11:
+            room.add_connect(8)
+            room.add_connect(11)
+            room.add_connect(16)
+        if indeks == 12:
+            room.add_connect(9)
+            room.add_connect(14)
+        if indeks == 13:
+            room.add_connect(13)
+            room.add_connect(15)
+            room.add_connect(10)
+        if indeks == 14:
+            room.add_connect(14)
+            room.add_connect(16)
+            room.add_connect(11)
+        if indeks == 15:
+            room.add_connect(15)
+            room.add_connect(12)
 
 # ============ BEGIN HERE ===========
 
@@ -273,7 +249,6 @@ while True:
         else:
             print("\n** Stop trying to shoot through walls.")
 
-        Wumpus.wakeup(Cave)
         Arrows -= 1
         if Arrows == 0:
             print("\n You are out of arrows\n Better luck next time\n")
