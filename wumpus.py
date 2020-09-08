@@ -34,7 +34,10 @@ class Room:
         self.description = ""
         for key, value in kwargs.items():
             setattr(self, key, value)
-
+    
+    def add_connect(self, arg_connect):
+        if arg_connect not in self.connects_to:
+            self.connects_to.append(arg_connect)    
 
     def describe(self):
         if len(self.description) > 0:
@@ -65,6 +68,10 @@ class Thing:
                 
     def is_hit(self, a_room):
         return self.location == a_room
+
+    def take_gold(self, wumpus_location):
+        self.location = wumpus_location
+        return True
 
 def create_things(a_cave):
     # a_cave = room, 0 - 15
@@ -205,10 +212,10 @@ while True:
     for room in Player.location.connects_to:
         if Wumpus.location.number == room:
             print("Stench")
-        if Pit1.location.number == room or Pit2.location.number == room:
+        if Pit1.location.number == room or Pit2.location.number == room or Pit3.location == room:
             print("Breeze")
        
-    if Gold.location.number == room:
+    if Gold.location == Player.location:
         print("Gold Found. Press T to take the gold")
     raw_command = input("\n> ")
     command_list = raw_command.split(' ')
@@ -222,8 +229,9 @@ while True:
     else:
         move = Player.location
     if command == 'TAKE' or command == 'T':
-            # TODO : TAKE GOLD ACTION
-            continue
+        Gold.take_gold(Wumpus.location.number)
+        print('Gold telah diambil')
+        continue
     if command == 'HELP' or command == 'H':
         show_instructions()
         continue
