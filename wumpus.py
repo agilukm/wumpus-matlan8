@@ -69,10 +69,6 @@ class Thing:
     def is_hit(self, a_room):
         return self.location == a_room
 
-    def take_gold(self, wumpus_location):
-        self.location = wumpus_location
-        return True
-
 def create_things(a_cave):
     # a_cave = room, 0 - 15
     Things=[]
@@ -231,7 +227,7 @@ while True:
     if command == 'TAKE' or command == 'T':
         Gold.take_gold(Wumpus.location.number)
         print('Gold telah diambil')
-        continue
+        sys.exit()
     if command == 'HELP' or command == 'H':
         show_instructions()
         continue
