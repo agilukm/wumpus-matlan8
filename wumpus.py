@@ -1,5 +1,6 @@
 import random
 import sys
+import threading
 
 def help():
     print ("""
@@ -13,46 +14,59 @@ def help():
     bila ruangan terdekat memiliki:
         WUMPUS:   'STENCH'
         PIT   :   'BREEZE'
+        
+    Anda dinyatakan menang apabila Anda telah
+    mendapatkan seluruh GOLD atau berhasil
+    membunuh semua WUMPUS dengan Arrow.
+    
+    Anda dinyatakan kalah apabila terjatuh ke
+    dalam PIT, dimakan oleh WUMPUS, atau saat
+    kehilangan seluruh Arrow yang dimiliki.
         """)
 
+def bentuk():
+    print("""
+        13 14 15 16
+        9  10 11 12
+        5  6  7  8
+        1  2  3  4
+        """)
+    
 class Objek:
 
     def __init__(self, **kwargs):
-        self.location = 0 # this is a room object
+        self.lokasi = 0 #ini adalah objek Room
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def move(self, new_location):
-        if new_location.number in self.location.relation or new_location == self.location:
-            self.location = new_location
+    def pindah(self, lokasi_baru):
+        if lokasi_baru.number in self.lokasi.relasi or lokasi_baru == self.lokasi:
+            self.lokasi = lokasi_baru
             return True
         else:
             return False
 
-    def validate_move(self, new_location):
-        return new_location.number in self.location.relation or new_location == self.location
-                
-    def is_hit(self, a_room):
-        return self.location == a_room
+    def validasi_gerak(self, lokasi_baru):
+        return lokasi_baru.number in self.lokasi.relasi or lokasi_baru == self.lokasi
 
 class Ruangan:
 
     def __init__(self, **kwargs):
         self.number = 0
-        self.relation = [] #These are NOT objects
+        self.relasi = [] 
         for key, value in kwargs.items():
             setattr(self, key, value)
     
     def connect(self, new_number):
-        if new_number not in self.relation:
-            self.relation.append(new_number)    
+        if new_number not in self.relasi:
+            self.relasi.append(new_number)    
 
     def describe(self):
-        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.number, self.relation))        
+        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.number, self.relasi))        
 
-def create_objek(ruangan):
+def buat_objek(ruangan):
     Things=[]
-    Things.append(Objek(location = ruangan[0])) # Agent berada di kolom 1.1
+    Things.append(Objek(lokasi = ruangan[0])) # Agent berada di kolom 1.1
     checker = False
 
     while checker == False:
@@ -83,16 +97,16 @@ def create_objek(ruangan):
             checker = False
 
     for room in Objects:
-        Things.append(Objek(location = room))
+        Things.append(Objek(lokasi = room))
 
     return Things
 
-def create_map():
-    # First create a list of all the rooms.
+def buat_map():
+    # Membuat list dari room
     for number in range(16):
         Map.append(Ruangan(number = number +1))
 
-    # Then stich them together.
+    # Menghubungkan seluruh room sesuai aturan 4x4
     for indeks, room in enumerate(Map):
 
         if indeks == 0:
@@ -163,9 +177,13 @@ def create_map():
 # ============ BEGIN HERE ===========
 
 Map = []
-create_map()
+buat_map()
 
-Agent, Wumpus, Pit1, Pit2, Pit3, Gold = create_objek(Map)
+Agent, Wumpus, Pit1, Pit2, Pit3, Gold = buat_objek(Map)
+
+#Membuat variabel untuk wait sebelum sys.exit
+yyy = threading.Event()
+
 
 print("""
     Selamat Datang di wumpus..
@@ -178,15 +196,15 @@ print("""
 
 
 while True:
-    Agent.location.describe()
+    Agent.lokasi.describe()
 
-    for room in Agent.location.relation:
-        if Wumpus.location.number == room:
+    for room in Agent.lokasi.relasi:
+        if Wumpus.lokasi.number == room:
             print("Stench")
-        if Pit1.location.number == room or Pit2.location.number == room or Pit3.location.number == room:
+        if Pit1.lokasi.number == room or Pit2.lokasi.number == room or Pit3.lokasi.number == room:
             print("Breeze")
        
-    if Gold.location == Agent.location:
+    if Gold.lokasi == Agent.lokasi:
         print("Gold ditemukan. Tekan T untuk mengambil gold")
     
     agent_input = input("\n> ")
@@ -199,28 +217,31 @@ while True:
             print("\n Command tidak ditemukan")
             continue
     else:
-        move = Agent.location
+        move = Agent.lokasi
 
     if command == 'T':
         print("Gold berhasil diambil. Anda memenangkan permainan")
+        yyy.wait(2)
         sys.exit()
 
-        continue
     if command == 'H':
         help()
 
         continue
 
     elif command == 'Q' or command == 'QUIT':
+        print("Anda Keluar")
+        yyy.wait(2)
         sys.exit()
 
     elif command == 'M':
-        Agent.move(move)
+        Agent.pindah(move)
+        bentuk()
 
     elif command == 'S':
-        if Agent.validate_move(move):
+        if Agent.validasi_gerak(move):
             print('Anda menembak ruangan {}'.format(move.number))
-            if Wumpus.location == move:
+            if Wumpus.lokasi == move:
                 print("\n Wumpus mati. \n Selamat anda memenangkan permainan.\n")
                 sys.exit()
         else:
@@ -228,18 +249,21 @@ while True:
             continue
 
         print("\n Tembakanmu meleset. Anda kalah.\n")
+        yyy.wait(2)
         sys.exit()
     
     else:
         print("\n **COMMAND YANG TERSEDIA : \n 1. M {ANGKA} \n 2. S {ANGKA} \n 3. H \n 4. Q")
         continue
 
-    if Agent.location == Wumpus.location:
-        print("Wumpus Memakanmu\n")
+    if Agent.lokasi == Wumpus.lokasi:
+        print("Wumpus Memakanmu, KALAH!\n")
+        yyy.wait(2)
         sys.exit()    
 
-    elif Agent.location == Pit1.location or Agent.location == Pit2.location or Agent.location == Pit3.location:
-        print("Anda masuk kedalam PIT\n")
+    elif Agent.lokasi == Pit1.lokasi or Agent.lokasi == Pit2.lokasi or Agent.lokasi == Pit3.lokasi:
+        print("Anda masuk kedalam PIT, KALAH!\n")
+        yyy.wait(2)
         sys.exit()
 
     else:
