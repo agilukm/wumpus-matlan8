@@ -208,6 +208,7 @@ while True:
         continue
     if command == 'H':
         help()
+
         continue
 
     elif command == 'Q' or command == 'QUIT':
