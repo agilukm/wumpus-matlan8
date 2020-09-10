@@ -1,7 +1,7 @@
 import random
 import sys
 import threading
-   
+from io import StringIO
 class Objek:
 
     def __init__(self, **kwargs):
@@ -23,16 +23,16 @@ class Ruangan:
 
     def __init__(self, **kwargs):
         self.nomor = 0
-        self.relasi = [] 
+        self.relasi = []
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     def connect(self, nomor_baru):
         if nomor_baru not in self.relasi:
-            self.relasi.append(nomor_baru)    
+            self.relasi.append(nomor_baru)
 
     def deskripsi(self):
-        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.nomor, self.relasi))        
+        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.nomor, self.relasi))
 
 def buat_objek(ruangan):
     objeks_2=[]
@@ -44,7 +44,7 @@ def buat_objek(ruangan):
         Pits = [Objects[1], Objects[2], Objects[3]]
         # 13 [14]   [15] 16
         # [9] 10   11 [12]
-        
+
         # [5] 6   7 [8]
         # 1 [2]   [3] 4
         # Pit tidak boleh berada pada pasangan ruangan seperti gambar diatas
@@ -52,9 +52,9 @@ def buat_objek(ruangan):
         forbiddenRoom2 = [ruangan[2], ruangan[7]]
         forbiddenRoom3 = [ruangan[13], ruangan[8]]
         forbiddenRoom4 = [ruangan[11], ruangan[14]]
-    
+
         checker = True
-        
+
         if Objects[0] == ruangan[0]:
             checker = False
         if Objects[1] == ruangan[0] or Objects[2] == ruangan[0] or Objects[3] == ruangan[0]:
@@ -151,16 +151,16 @@ def help():
         9  10 11 12
         5  6  7  8
         1  2  3  4
-        
+
     Agent memiliki indra untuk mencium bahaya
     bila ruangan terdekat memiliki:
         WUMPUS:   'STENCH'
         PIT   :   'BREEZE'
-        
+
     Anda dinyatakan menang apabila Anda telah
     mendapatkan seluruh GOLD atau berhasil
     membunuh semua WUMPUS dengan Arrow.
-    
+
     Anda dinyatakan kalah apabila terjatuh ke
     dalam PIT, dimakan oleh WUMPUS, atau saat
     kehilangan seluruh Arrow yang dimiliki.
@@ -176,25 +176,47 @@ def bentuk():
 
 def perintah_tersedia():
     print("""
-        perintah YANG TERSEDIA : \n 
+        perintah YANG TERSEDIA : \n
        1. G {ANGKA} untuk bergerak
        2. T {ANGKA} untuk menembak
        3. B untuk bantuan
        4. K untuk keluar
        """)
-       
+
 """
     Program Utama
 """
 
 Map = []
 buat_map()
-
+Golds = False
+Stench = False
+Stench = True
 Agent, Wumpus, Pit1, Pit2, Pit3, Gold = buat_objek(Map)
 
 #Membuat variabel untuk wait sebelum sys.exit
 yyy = threading.Event()
 
+def getI(i, relasi):
+    while False:
+        if i not in relasi:
+            i += 1
+            continue
+        return True
+    return i
+
+def ai():
+    if (Golds == True):
+        sys.stdin = StringIO('A')
+        return True
+    i = getI(Agent.lokasi.nomor, Agent.lokasi.relasi)
+
+    threading.Event().wait(1)
+    if (Stench == True):
+        sys.stdin = StringIO('T {}'.format(Agent.lokasi.relasi[-1]))
+        return True
+
+    sys.stdin = StringIO('G {}'.format(Agent.lokasi.relasi[-1]))
 
 print("""
     Selamat Datang di Wumpus World.
@@ -209,13 +231,24 @@ while True:
     for room in Agent.lokasi.relasi:
         if Wumpus.lokasi.nomor == room:
             print("Stench")
+            Stench = True
+        else:
+            Stench = False
         if Pit1.lokasi.nomor == room or Pit2.lokasi.nomor == room or Pit3.lokasi.nomor == room:
             print("Breeze")
-       
+            Breeze = True
+        else:
+            Breeze = False
+
     if Gold.lokasi == Agent.lokasi:
+        Golds = True
         print("Gold ditemukan. Tekan A untuk mengambil gold")
-    
-    agent_input = input("\n> ")
+
+    try:
+        agent_input = input("\n> ")
+    except:
+        ai()
+
     list_perintah = agent_input.split(' ')
     perintah = list_perintah[0].upper()
     if len(list_perintah) == 2:
@@ -227,6 +260,9 @@ while True:
         print("Gold berhasil diambil. Anda memenangkan permainan")
         yyy.wait(2)
         sys.exit()
+
+    elif perintah == 'AI':
+        ai()
 
     elif perintah == 'B':
         help()
@@ -256,7 +292,7 @@ while True:
         print("\n Tembakanmu meleset. Anda kalah.\n")
         yyy.wait(2)
         sys.exit()
-    
+
     else:
         perintah_tersedia()
         continue
@@ -264,7 +300,7 @@ while True:
     if Agent.lokasi == Wumpus.lokasi:
         print("Wumpus Memakanmu, KALAH!\n")
         yyy.wait(2)
-        sys.exit()    
+        sys.exit()
 
     elif Agent.lokasi == Pit1.lokasi or Agent.lokasi == Pit2.lokasi or Agent.lokasi == Pit3.lokasi:
         print("Anda masuk kedalam PIT, KALAH!\n")
