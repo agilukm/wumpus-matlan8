@@ -177,10 +177,10 @@ def bentuk():
 def perintah_tersedia():
     print("""
         perintah YANG TERSEDIA : \n 
-       1. M {ANGKA} untuk bergerak
-       2. S {ANGKA} untuk menembak
-       3. H untuk bantuan
-       4. Q untuk keluar
+       1. G {ANGKA} untuk bergerak
+       2. T {ANGKA} untuk menembak
+       3. B untuk bantuan
+       4. K untuk keluar
        """)
        
 """
@@ -213,7 +213,7 @@ while True:
             print("Breeze")
        
     if Gold.lokasi == Agent.lokasi:
-        print("Gold ditemukan. Tekan T untuk mengambil gold")
+        print("Gold ditemukan. Tekan A untuk mengambil gold")
     
     agent_input = input("\n> ")
     list_perintah = agent_input.split(' ')
@@ -223,26 +223,26 @@ while True:
     else:
         move = Agent.lokasi
 
-    if perintah == 'T':
+    if perintah == 'A':
         print("Gold berhasil diambil. Anda memenangkan permainan")
         yyy.wait(2)
         sys.exit()
 
-    elif perintah == 'H':
+    elif perintah == 'B':
         help()
 
         continue
 
-    elif perintah == 'Q' or perintah == 'QUIT':
+    elif perintah == 'K' or perintah == 'KELUAR':
         print("Anda Keluar")
         yyy.wait(2)
         sys.exit()
 
-    elif perintah == 'M':
+    elif perintah == 'G':
         Agent.pindah(move)
         bentuk()
 
-    elif perintah == 'S':
+    elif perintah == 'T':
         if Agent.validasi_gerak(move):
             print('Anda menembak ruangan {}'.format(move.nomor))
             if Wumpus.lokasi == move:
