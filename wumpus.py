@@ -1,37 +1,7 @@
 import random
 import sys
 import threading
-
-def help():
-    print ("""
-        INI BENTUK DARI RUANGAN YANG TERSEDIA
-        13 14 15 16
-        9  10 11 12
-        5  6  7  8
-        1  2  3  4
-        
-    Agent memiliki indra untuk mencium bahaya
-    bila ruangan terdekat memiliki:
-        WUMPUS:   'STENCH'
-        PIT   :   'BREEZE'
-        
-    Anda dinyatakan menang apabila Anda telah
-    mendapatkan seluruh GOLD atau berhasil
-    membunuh semua WUMPUS dengan Arrow.
-    
-    Anda dinyatakan kalah apabila terjatuh ke
-    dalam PIT, dimakan oleh WUMPUS, atau saat
-    kehilangan seluruh Arrow yang dimiliki.
-        """)
-
-def bentuk():
-    print("""
-        13 14 15 16
-        9  10 11 12
-        5  6  7  8
-        1  2  3  4
-        """)
-    
+   
 class Objek:
 
     def __init__(self, **kwargs):
@@ -40,33 +10,33 @@ class Objek:
             setattr(self, key, value)
 
     def pindah(self, lokasi_baru):
-        if lokasi_baru.number in self.lokasi.relasi or lokasi_baru == self.lokasi:
+        if lokasi_baru.nomor in self.lokasi.relasi or lokasi_baru == self.lokasi:
             self.lokasi = lokasi_baru
             return True
         else:
             return False
 
     def validasi_gerak(self, lokasi_baru):
-        return lokasi_baru.number in self.lokasi.relasi or lokasi_baru == self.lokasi
+        return lokasi_baru.nomor in self.lokasi.relasi or lokasi_baru == self.lokasi
 
 class Ruangan:
 
     def __init__(self, **kwargs):
-        self.number = 0
+        self.nomor = 0
         self.relasi = [] 
         for key, value in kwargs.items():
             setattr(self, key, value)
     
-    def connect(self, new_number):
-        if new_number not in self.relasi:
-            self.relasi.append(new_number)    
+    def connect(self, nomor_baru):
+        if nomor_baru not in self.relasi:
+            self.relasi.append(nomor_baru)    
 
-    def describe(self):
-        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.number, self.relasi))        
+    def deskripsi(self):
+        print("Agent berada di ruangan {}.\nAgent bisa pergi ke ruangan : {}".format(self.nomor, self.relasi))        
 
 def buat_objek(ruangan):
-    Things=[]
-    Things.append(Objek(lokasi = ruangan[0])) # Agent berada di kolom 1.1
+    objeks_2=[]
+    objeks_2.append(Objek(lokasi = ruangan[0])) # Agent berada di kolom 1.1
     checker = False
 
     while checker == False:
@@ -97,14 +67,14 @@ def buat_objek(ruangan):
             checker = False
 
     for room in Objects:
-        Things.append(Objek(lokasi = room))
+        objeks_2.append(Objek(lokasi = room))
 
-    return Things
+    return objeks_2
 
 def buat_map():
     # Membuat list dari room
-    for number in range(16):
-        Map.append(Ruangan(number = number +1))
+    for nomor in range(16):
+        Map.append(Ruangan(nomor = nomor +1))
 
     # Menghubungkan seluruh room sesuai aturan 4x4
     for indeks, room in enumerate(Map):
@@ -174,7 +144,48 @@ def buat_map():
             room.connect(15)
             room.connect(12)
 
-# ============ BEGIN HERE ===========
+def help():
+    print ("""
+        INI BENTUK DARI RUANGAN YANG TERSEDIA
+        13 14 15 16
+        9  10 11 12
+        5  6  7  8
+        1  2  3  4
+        
+    Agent memiliki indra untuk mencium bahaya
+    bila ruangan terdekat memiliki:
+        WUMPUS:   'STENCH'
+        PIT   :   'BREEZE'
+        
+    Anda dinyatakan menang apabila Anda telah
+    mendapatkan seluruh GOLD atau berhasil
+    membunuh semua WUMPUS dengan Arrow.
+    
+    Anda dinyatakan kalah apabila terjatuh ke
+    dalam PIT, dimakan oleh WUMPUS, atau saat
+    kehilangan seluruh Arrow yang dimiliki.
+        """)
+
+def bentuk():
+    print("""
+        13 14 15 16
+        9  10 11 12
+        5  6  7  8
+        1  2  3  4
+        """)
+
+def perintah_tersedia():
+    print("""
+        perintah YANG TERSEDIA : \n 
+       1. M {ANGKA} untuk bergerak
+       2. S {ANGKA} untuk menembak
+       3. H untuk bantuan
+       4. Q untuk keluar
+       """)
+       
+"""
+    Program Utama
+"""
 
 Map = []
 buat_map()
@@ -186,63 +197,57 @@ yyy = threading.Event()
 
 
 print("""
-    Selamat Datang di wumpus..
-       COMMAND YANG TERSEDIA : \n 
-       1. M {ANGKA} untuk bergerak
-       2. S {ANGKA} untuk menembak
-       3. H untuk bantuan
-       4. Q untuk keluar")
+    Selamat Datang di Wumpus World.
     """)
+help()
+perintah_tersedia()
 
 
 while True:
-    Agent.lokasi.describe()
+    Agent.lokasi.deskripsi()
 
     for room in Agent.lokasi.relasi:
-        if Wumpus.lokasi.number == room:
+        if Wumpus.lokasi.nomor == room:
             print("Stench")
-        if Pit1.lokasi.number == room or Pit2.lokasi.number == room or Pit3.lokasi.number == room:
+        if Pit1.lokasi.nomor == room or Pit2.lokasi.nomor == room or Pit3.lokasi.nomor == room:
             print("Breeze")
        
     if Gold.lokasi == Agent.lokasi:
         print("Gold ditemukan. Tekan T untuk mengambil gold")
     
     agent_input = input("\n> ")
-    command_list = agent_input.split(' ')
-    command = command_list[0].upper()
-    if len(command_list) > 1:
-        try:
-            move = Map[int(command_list[1]) -1]
-        except:
-            print("\n Command tidak ditemukan")
-            continue
+    list_perintah = agent_input.split(' ')
+    perintah = list_perintah[0].upper()
+    if len(list_perintah) == 2:
+        move = Map[int(list_perintah[1]) -1]
     else:
         move = Agent.lokasi
 
-    if command == 'T':
+    if perintah == 'T':
         print("Gold berhasil diambil. Anda memenangkan permainan")
         yyy.wait(2)
         sys.exit()
 
-    if command == 'H':
+    elif perintah == 'H':
         help()
 
         continue
 
-    elif command == 'Q' or command == 'QUIT':
+    elif perintah == 'Q' or perintah == 'QUIT':
         print("Anda Keluar")
         yyy.wait(2)
         sys.exit()
 
-    elif command == 'M':
+    elif perintah == 'M':
         Agent.pindah(move)
         bentuk()
 
-    elif command == 'S':
+    elif perintah == 'S':
         if Agent.validasi_gerak(move):
-            print('Anda menembak ruangan {}'.format(move.number))
+            print('Anda menembak ruangan {}'.format(move.nomor))
             if Wumpus.lokasi == move:
                 print("\n Wumpus mati. \n Selamat anda memenangkan permainan.\n")
+                yyy.wait(2)
                 sys.exit()
         else:
             print("\n** Agent tidak bisa menembak ke ruangan yang tidak berelasi.")
@@ -253,7 +258,7 @@ while True:
         sys.exit()
     
     else:
-        print("\n **COMMAND YANG TERSEDIA : \n 1. M {ANGKA} \n 2. S {ANGKA} \n 3. H \n 4. Q")
+        perintah_tersedia()
         continue
 
     if Agent.lokasi == Wumpus.lokasi:
